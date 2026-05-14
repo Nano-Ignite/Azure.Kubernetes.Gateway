@@ -4,7 +4,7 @@ metadata:
   name: %APP_NAME%
   namespace: %KUBERNETES_NAMESPACE%
 spec:
-  gatewayClassName: azure-application-lb
+  gatewayClassName: azure-alb-external
   listeners:
     - name: https
       protocol: HTTPS
