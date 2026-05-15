@@ -40,7 +40,10 @@ jobs:
         shell: pwsh
         run: |
           $env:DNS_ZONE_NAME = az network dns zone list -g $env:AZURE_GROUP_DNS --query [0].name -o tsv;
+          $env:VNET_NAME = az network vnet list -g $env:AZURE_GROUP_KUBERNETES_ASSETS --query [0].name -o tsv;
           $env:ALB_SUBNET_ID = az network vnet subnet show -n aks-subnet-alb -g $env:AZURE_GROUP_KUBERNETES_ASSETS --vnet-name $env:VNET_NAME --query id --output tsv;
+
+          echo $env:ALB_SUBNET_ID; 
 
           Get-Content .kubernetes/application-load-balancer.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/application-load-balancer.tmp.yaml;
           Get-Content .kubernetes/gateway.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/gateway.tmp.yaml;
