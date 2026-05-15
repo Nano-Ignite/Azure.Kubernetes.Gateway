@@ -59,6 +59,10 @@ jobs:
               kubectl apply -f application-load-balancer.tmp.yaml || exit 1
               kubectl apply -f gateway.tmp.yaml || exit 2
               kubectl apply -f certificate.tmp.yaml || exit 3
+
+              kubectl apply -f blackhole-service.tmp.yaml || exit 4
+              kubectl apply -f blackhole-deployment.tmp.yaml || exit 5
+              kubectl apply -f blackhole-httproute-catch-all.tmp.yaml || exit 6
           "@;
 
           $result = az aks command invoke `
