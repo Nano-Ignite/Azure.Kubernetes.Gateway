@@ -80,6 +80,20 @@ jobs:
               throw "Deploy failed"
           }
 
+      - name: Create DNS CNAME Record
+        shell: pwsh
+        run: |
+          $env:ALB_NAME = az network alb list -g $env:AZURE_GROUP_KUBERNETES_ASSETS --query [0].name -o tsv;
+          $env:ALB_FQDN = az network alb frontend list -g $env:AZURE_GROUP_KUBERNETES_ASSETS --alb-name $env:ALB_NAME --query [0].fqdn;
+
+          az network dns record-set cname set-record `
+              -g $env:AZURE_GROUP_DNS `
+              -z $env:DNS_ZONE_NAME `
+              --record-set-name * `
+              --cname $env:ALB_FQDN `
+              --ttl 3600 `
+              --if-none-match;
+ 
       - name: GitHub Release
         if: github.ref == 'refs/heads/master'
         uses: ncipollo/release-action@v1
