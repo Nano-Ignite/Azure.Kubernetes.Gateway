@@ -13,8 +13,8 @@ spec:
   subject:
     organizations:
     - %CERTIFICATE_ORGANIZATION%
-  CommonName: %DNS_ZONE_NAME%
   dnsNames:
+    - "%DNS_ZONE_NAME%"
     - "*.%DNS_ZONE_NAME%"
   privateKey:
     rotationPolicy: Always  
