@@ -7,7 +7,7 @@ spec:
   parentRefs:
     - name: %APP_NAME%
   hostnames:
-    - %DNS_ZONE_NAME%
+    - "a.%DNS_ZONE_NAME%"
   rules:
     - matches:
         - path:
