@@ -7,9 +7,9 @@ env:
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }} 
   AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }} 
   AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }} 
-  AZURE_GROUP: ${{ vars.AZURE_KUBERNETES_RESOURCE_GROUP }} 
-  AZURE_GROUP_DNS: ${{ vars.AZURE_DNS_RESOURCE_GROUP }} 
-  AZURE_GROUP_KUBERNETES_ASSETS: ${{ vars.AZURE_KUBERNETES_ASSETS_RESOURCE_GROUP }} 
+  AZURE_GROUP_KUBERNETES: ${{ vars.AZURE_RESOURCE_GROUP_KUBERNETES }} 
+  AZURE_GROUP_KUBERNETES_ASSETS: ${{ vars.AZURE_RESOURCE_GROUP_KUBERNETES_ASSETS }} 
+  AZURE_GROUP_DNS: ${{ vars.AZURE_RESOURCE_GROUP_DNS }} 
   AZURE_SUBSCRIPTION_ID: ${{ github.ref == 'refs/heads/master' && secrets.PRODUCTION_AZURE_SUBSCRIPTION_ID || secrets.STAGING_AZURE_SUBSCRIPTION_ID }}
   KUBERNETES_CLUSTER: ${{ github.ref == 'refs/heads/master' && vars.PRODUCTION_KUBERNETES_CLUSTER || vars.STAGING_KUBERNETES_CLUSTER }}
   KUBERNETES_NODEPOOL_COMPUTE: cpu
@@ -33,7 +33,7 @@ jobs:
         run: |
           az login --service-principal -u $env:AZURE_CLIENT_ID -p $env:AZURE_CLIENT_SECRET --tenant $env:AZURE_TENANT_ID -o none;
           az account set -s $env:AZURE_SUBSCRIPTION_ID -o none;
-          az aks get-credentials -g $env:AZURE_GROUP -n $env:KUBERNETES_CLUSTER -o none;
+          az aks get-credentials -g $env:AZURE_GROUP_KUBERNETES -n $env:KUBERNETES_CLUSTER -o none;
 
       - name: Deploy Gateway And Load Balancer
         shell: pwsh
@@ -45,9 +45,6 @@ jobs:
           Get-Content .kubernetes/application-load-balancer.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/application-load-balancer.tmp.yaml;
           Get-Content .kubernetes/gateway.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/gateway.tmp.yaml;
           Get-Content .kubernetes/certificate.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/certificate.tmp.yaml;
-          Get-Content .kubernetes/blackhole-service.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/blackhole-service.tmp.yaml;
-          Get-Content .kubernetes/blackhole-deployment.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/blackhole-deployment.tmp.yaml;
-          Get-Content .kubernetes/blackhole-httproute-catch-all.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/blackhole-httproute-catch-all.tmp.yaml;
           
           $command = @"
               set -eu
@@ -55,14 +52,10 @@ jobs:
               kubectl apply -f application-load-balancer.tmp.yaml || exit 1
               kubectl apply -f gateway.tmp.yaml || exit 2
               kubectl apply -f certificate.tmp.yaml || exit 3
-
-              kubectl apply -f blackhole-service.tmp.yaml || exit 4
-              kubectl apply -f blackhole-deployment.tmp.yaml || exit 5
-              kubectl apply -f blackhole-httproute-catch-all.tmp.yaml || exit 6
           "@;
 
           $result = az aks command invoke `
-              -g $env:AZURE_GROUP `
+              -g $env:AZURE_GROUP_KUBERNETES `
               -n $env:KUBERNETES_CLUSTER `
               --file .kubernetes/application-load-balancer.tmp.yaml `
               --file .kubernetes/gateway.tmp.yaml `
