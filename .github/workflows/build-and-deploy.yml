@@ -51,6 +51,8 @@ jobs:
               }
           ) -join "`n";
 
+          echo $env:CERTIFICATE_DNS_NAMES;
+
           Get-Content .kubernetes/application-load-balancer.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/application-load-balancer.tmp.yaml;
           Get-Content .kubernetes/gateway.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/gateway.tmp.yaml;
           Get-Content .kubernetes/certificate.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/certificate.tmp.yaml;
