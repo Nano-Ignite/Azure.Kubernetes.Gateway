@@ -89,6 +89,8 @@ jobs:
 
           $zones2 = az network dns zone list -g $env:AZURE_GROUP_DNS | ConvertFrom-Json;
 
+          echo $zones2;
+
           foreach ($zone in $zones2) 
           {
               # az network dns record-set cname set-record `
