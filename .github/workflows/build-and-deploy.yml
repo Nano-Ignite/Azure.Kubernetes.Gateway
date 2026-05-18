@@ -91,18 +91,43 @@ jobs:
 
           foreach ($zone in $zones) 
           {
-              az network dns record-set cname create `
+              $recordExists = az network dns record-set cname show `
                   -g $env:AZURE_GROUP_DNS `
-                  -z $($zone.name) `
+                  -z $zone.name `
                   -n "*" `
-                  --ttl 3600 `
-                  --if-none-match "*" -o none;
+                  --query "name" `
+                  -o tsv `
+                  --only-show-errors;
 
-              az network dns record-set cname set-record `
-                  -g $env:AZURE_GROUP_DNS `
-                  -z $($zone.name) `
-                  -n "*" `
-                  -c $env:ALB_FQDN -o none;
+              if (-not $recordExists)
+              {
+                  az network dns record-set cname create `
+                      -g $env:AZURE_GROUP_DNS `
+                      -z $zone.name `
+                      -n "*" `
+                      --ttl 3600;
+
+                  az network dns record-set cname set-record `
+                      -g $env:AZURE_GROUP_DNS `
+                      -z $zone.name `
+                      -n "*" `
+                      -c $env:ALB_FQDN;
+              }
+
+
+
+              # az network dns record-set cname create `
+              #     -g $env:AZURE_GROUP_DNS `
+              #     -z $($zone.name) `
+              #     -n "*" `
+              #     --ttl 3600 `
+              #     --if-none-match "*" -o none;
+
+              # az network dns record-set cname set-record `
+              #     -g $env:AZURE_GROUP_DNS `
+              #     -z $($zone.name) `
+              #     -n "*" `
+              #     -c $env:ALB_FQDN -o none;
           }
 
           if ($LastExitCode -ne 0)
