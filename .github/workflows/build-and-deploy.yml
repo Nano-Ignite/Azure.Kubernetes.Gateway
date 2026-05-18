@@ -87,12 +87,14 @@ jobs:
           $env:ALB_NAME = az network alb list -g $env:AZURE_GROUP_KUBERNETES_ASSETS --query [0].name -o tsv;
           $env:ALB_FQDN = az network alb frontend list -g $env:AZURE_GROUP_KUBERNETES_ASSETS --alb-name $env:ALB_NAME --query [0].fqdn -o tsv;
 
-          $zones2 = az network dns zone list -g $env:AZURE_GROUP_DNS | ConvertFrom-Json;
+          $zones = az network dns zone list -g $env:AZURE_GROUP_DNS | ConvertFrom-Json;
 
-          echo $zones2;
+          echo $zones;
 
-          foreach ($zone in $zones2) 
+          foreach ($zone in $zones) 
           {
+              echo $zone.name;
+
               # az network dns record-set cname set-record `
               #     -g $env:AZURE_GROUP_DNS `
               #     -z $($zone.name) `
@@ -102,10 +104,10 @@ jobs:
               #     --if-none-match;
           }
 
-          if ($result.exitCode -ne 0)
-          {
-              throw "error";
-          }
+          # if ($result.exitCode -ne 0)
+          # {
+          #     throw "error";
+          # }
  
       - name: GitHub Release
         if: github.ref == 'refs/heads/master'
