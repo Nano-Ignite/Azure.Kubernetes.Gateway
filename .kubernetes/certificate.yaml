@@ -14,6 +14,6 @@ spec:
     organizations:
     - %CERTIFICATE_ORGANIZATION%
   dnsNames: 
-%CERTIFICATE_DNS_NAMES% 
+%CERTIFICATE_DNS_NAMES%
   privateKey:
     rotationPolicy: Always  
