@@ -58,15 +58,14 @@ jobs:
           ) -join "`n";
 
           Get-Content .kubernetes/gateway.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/gateway.tmp.yaml;
-          Get-Content .kubernetes/certificate.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/certificate.tmp.yaml;
-          
-          kubectl apply -f gateway.tmp.yaml;
+          kubectl apply -f .kubernetes/gateway.tmp.yaml;
           if ($LastExitCode -ne 0) 
           { 
               throw "error";
           }
 
-          kubectl apply -f certificate.tmp.yaml;
+          Get-Content .kubernetes/certificate.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/certificate.tmp.yaml;
+          kubectl apply -f .kubernetes/certificate.tmp.yaml;
           if ($LastExitCode -ne 0) 
           { 
               throw "error";
