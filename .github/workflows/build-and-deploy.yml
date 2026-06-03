@@ -57,14 +57,12 @@ jobs:
           #    }
           #) -join "`n";
 
-          $dnsLines = @()
-
-          foreach ($zoneName in $zoneNames) {
-              $dnsLines += "  - $zoneName"
-              $dnsLines += "  - *.$zoneName"
-          }
-
-          $env:CERTIFICATE_DNS_NAMES = $dnsLines -join "`n"
+          $env:CERTIFICATE_DNS_NAMES = (
+              foreach ($zoneName in $zoneNames) {
+                  "  - $zoneName"
+                  "  - `"*.$zoneName`""
+              }
+          ) -join "`n"
 
           echo "AAA";
           echo $env:CERTIFICATE_DNS_NAMES;
