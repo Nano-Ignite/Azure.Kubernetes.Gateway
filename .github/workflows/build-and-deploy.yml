@@ -55,9 +55,6 @@ jobs:
               }
           ) -join "`n"
 
-          echo "AAA";
-          echo $env:CERTIFICATE_DNS_NAMES;
-
           $env:KUBERNETES_CLUSTER = az aks list -g $env:AZURE_GROUP_KUBERNETES --query [0].name -o tsv;
 
           Get-Content .kubernetes/gateway.yaml | foreach { [Environment]::ExpandEnvironmentVariables($_) } | Set-Content .kubernetes/gateway.tmp.yaml;
