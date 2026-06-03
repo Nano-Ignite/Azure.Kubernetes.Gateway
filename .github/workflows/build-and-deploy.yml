@@ -46,21 +46,12 @@ jobs:
       - name: Deploy Gateway And Load Balancer
         shell: pwsh
         run: |
-          $zoneNames = az network dns zone list -g $env:AZURE_GROUP_DNS --query [].name -o tsv;
- 
-          #$env:CERTIFICATE_DNS_NAMES = @(
-          #    foreach ($zoneName in $zoneNames) {
-          #@"
-          #    - $($zoneName),
-          #      *.$($zoneName)
-          #"@
-          #    }
-          #) -join "`n";
+          $zoneNames = az network dns zone list -g $env:AZURE_GROUP_DNS --query "[].name" -o json | ConvertFrom-Json
 
           $env:CERTIFICATE_DNS_NAMES = (
-              foreach ($zoneName in $zoneNames) {
-                  "  - $zoneName"
-                  "  - `"*.$zoneName`""
+              $zoneNames | ForEach-Object {
+                  "  - $_"
+                  "  - `"*.$_`""
               }
           ) -join "`n"
 
