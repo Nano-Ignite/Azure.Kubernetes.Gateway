@@ -11,5 +11,5 @@ spec:
     namespace: %KUBERNETES_NAMESPACE%
   default:
     policyType:
-      name: "2024-01"
-      type: "predefined"
+      name: 2023-06-S
+      type: predefined
